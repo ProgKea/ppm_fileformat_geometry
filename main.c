@@ -1,8 +1,14 @@
+#include <math.h>
 #include <stdio.h>
 #include <sys/types.h>
 
-#define WIDTH 100
-#define HEIGHT 100
+#define WIDTH 812
+#define HEIGHT 812
+
+typedef struct coordinates {
+  int x;
+  int y;
+} coordinates;
 
 typedef struct RGB {
   uint r;
@@ -10,21 +16,36 @@ typedef struct RGB {
   uint b;
 } RGB;
 
-typedef struct coordinates {
-  int x;
-  int y;
-} coordinates;
-
-coordinates get_midpoint(coordinates first_point, coordinates second_point) {
-  return (coordinates){(first_point.x ^ 2 + second_point.x ^ 2) / 2,
-                       (first_point.y ^ 2 + second_point.y ^ 2) / 2};
-}
-
-void circle_hollow(RGB pixels[], uint radius, uint width,
-                               uint height) {
+void rectangle_line(RGB pixels[], uint size, uint width, uint height,
+                    RGB primary_color, RGB secondary_color) {
+  coordinates center = (coordinates){width / 2, height / 2};
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
+      int dx = center.x - x;
+      int dy = center.y - y;
 
+      if ((dx ^ 2 + dy ^ 2) < (size ^ 2)) {
+        pixels[y * width + x] = primary_color;
+      } else {
+        pixels[y * width + x] = secondary_color;
+      }
+    }
+  }
+}
+
+void circle(RGB pixels[], uint radius, uint width, uint height,
+            RGB primary_color, RGB secondary_color) {
+  coordinates center = (coordinates){width / 2, height / 2};
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int dx = center.x - x;
+      int dy = center.y - y;
+
+      if ((dx * dx + dy * dy) <= ((int)radius * (int)radius)) {
+        pixels[y * width + x] = primary_color;
+      } else {
+        pixels[y * width + x] = secondary_color;
+      }
     }
   }
 }
@@ -33,17 +54,20 @@ void save_as_ppm(const char *file_path, uint width, uint height, RGB pixels[]) {
   FILE *file = fopen(file_path, "w");
   fprintf(file, "P3\n%u %u \n255\n", width, height);
 
-  for (int i = 0; i < height; i++) {
-    for (int j = 0; j < width; j++) {
-      fprintf(file, "%i\t%i\t%i\n", pixels[j].r, pixels[j].g, pixels[j].b);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      fprintf(file, "%u %u %u\n", pixels[y * width + x].r,
+              pixels[y * width + x].g, pixels[y * width + x].b);
     }
   }
 }
 
 int main() {
-  RGB circle[WIDTH * HEIGHT];
-  circle_hollow(circle, 100, WIDTH, HEIGHT);
-  save_as_ppm("output.ppm", HEIGHT, HEIGHT, circle);
+  RGB pixels[WIDTH * HEIGHT];
+  circle(pixels, WIDTH / 2, WIDTH, HEIGHT, (RGB){0, 0, 255}, (RGB){0, 0, 0});
+  save_as_ppm("circle.ppm", WIDTH, HEIGHT, pixels);
+  rectangle_line(pixels, 20, WIDTH, HEIGHT, (RGB){0, 255, 0}, (RGB){0, 0, 0});
+  save_as_ppm("rectangle_line.ppm", WIDTH, HEIGHT, pixels);
 
   return 0;
 }
