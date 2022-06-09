@@ -50,19 +50,22 @@ void circle(RGB pixels[], uint radius, uint width, uint height,
 }
 
 void checker_pattern(RGB pixels[], uint size, uint width, uint height,
-            RGB primary_color, RGB secondary_color) {
+                     RGB primary_color, RGB secondary_color) {
   coordinates center = (coordinates){width / 2, height / 2};
   for (int y = 0; y < height; y++) {
     if ((y % size * 2) >= size) {
       for (int x = 0; x < width; x++) {
-        if ((x % size * 2) < size) pixels[y * width + x] = primary_color;
-        else pixels[y * width + x] = secondary_color;
+        if ((x % size * 2) < size)
+          pixels[y * width + x] = primary_color;
+        else
+          pixels[y * width + x] = secondary_color;
       }
-    }
-    else {
+    } else {
       for (int x = 0; x < width; x++) {
-        if ((x % size * 2) >= size) pixels[y * width + x] = primary_color;
-        else pixels[y * width + x] = secondary_color;
+        if ((x % size * 2) >= size)
+          pixels[y * width + x] = primary_color;
+        else
+          pixels[y * width + x] = secondary_color;
       }
     }
   }
@@ -88,7 +91,8 @@ int main() {
   rectangle_line(pixels, 20, WIDTH, HEIGHT, (RGB){0, 255, 0}, (RGB){0, 0, 0});
   save_as_ppm("rectangle_line.ppm", WIDTH, HEIGHT, pixels);
 
-  checker_pattern(pixels, WIDTH/10, WIDTH, HEIGHT, (RGB){237, 214, 180}, (RGB){175, 132, 98});
+  checker_pattern(pixels, WIDTH / 10, WIDTH, HEIGHT, (RGB){237, 214, 180},
+                  (RGB){175, 132, 98});
   save_as_ppm("checker_pattern.ppm", WIDTH, HEIGHT, pixels);
 
   return 0;
